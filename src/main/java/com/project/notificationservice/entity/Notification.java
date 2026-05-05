@@ -25,14 +25,6 @@ public class Notification {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id")
-    private Template template;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Channel channel;
@@ -41,6 +33,12 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private NotificationStatus status = NotificationStatus.PENDING;
+
+    @Column(name = "recipient_id")
+    private String recipientId;
+
+    @Column(name = "recipient_contact", nullable = false)
+    private String recipientContact;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
@@ -62,6 +60,9 @@ public class Notification {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
 
     @PrePersist
     protected void onCreate() {
