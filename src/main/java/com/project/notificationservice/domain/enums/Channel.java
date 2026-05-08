@@ -1,4 +1,4 @@
-package com.project.notificationservice.enums;
+package com.project.notificationservice.domain.enums;
 
 public enum Channel {
     EMAIL,

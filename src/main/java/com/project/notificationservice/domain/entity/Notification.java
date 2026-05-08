@@ -1,7 +1,7 @@
-package com.project.notificationservice.entity;
+package com.project.notificationservice.domain.entity;
 
-import com.project.notificationservice.enums.Channel;
-import com.project.notificationservice.enums.NotificationStatus;
+import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.domain.enums.NotificationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -25,6 +25,12 @@ public class Notification {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
+    @Column(name = "recipient_id")
+    private String recipientId;
+
+    @Column(name = "recipient_contact", nullable = false)
+    private String recipientContact;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Channel channel;
@@ -33,12 +39,6 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private NotificationStatus status = NotificationStatus.PENDING;
-
-    @Column(name = "recipient_id")
-    private String recipientId;
-
-    @Column(name = "recipient_contact", nullable = false)
-    private String recipientContact;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
@@ -52,6 +52,9 @@ public class Notification {
     @Builder.Default
     private Integer retryCount = 0;
 
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
+
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
@@ -60,9 +63,6 @@ public class Notification {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "error_message", columnDefinition = "TEXT")
-    private String errorMessage;
 
     @PrePersist
     protected void onCreate() {
