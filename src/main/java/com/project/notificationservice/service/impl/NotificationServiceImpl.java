@@ -27,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationSender sender = senderMap.get(notification.getChannel());
 
         if (sender == null) {
-            // throw exception
+            throw new BaseException(ErrorCode.UNSUPPORTED_CHANNEL);
         }
 
         sender.send(notification);
