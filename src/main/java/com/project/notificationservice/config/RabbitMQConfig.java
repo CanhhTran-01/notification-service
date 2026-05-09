@@ -1,8 +1,8 @@
 package com.project.notificationservice.config;
 
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -27,12 +27,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding(Queue notificationQueue,
-                           DirectExchange notificationExchange) {
-        return BindingBuilder
-                .bind(notificationQueue)
-                .to(notificationExchange)
-                .with(NOTIFICATION_ROUTING_KEY);
+    public Binding binding(Queue notificationQueue, DirectExchange notificationExchange) {
+        return BindingBuilder.bind(notificationQueue).to(notificationExchange).with(NOTIFICATION_ROUTING_KEY);
     }
 
     @Bean
