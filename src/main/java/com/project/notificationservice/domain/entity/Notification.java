@@ -14,7 +14,6 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "notifications")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,13 +24,13 @@ public class Notification {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "recipient_id")
+    @Column(name = "recipient_id", updatable = false)
     private String recipientId;
 
-    @Column(name = "recipient_contact", nullable = false)
+    @Column(name = "recipient_contact", nullable = false, updatable = false)
     private String recipientContact;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Channel channel;
 
@@ -55,6 +54,9 @@ public class Notification {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Column(name = "event_id", nullable = false, unique = true, updatable = false)
+    private String eventId;
+
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
@@ -67,5 +69,21 @@ public class Notification {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsSent(){
+        this.status = NotificationStatus.SENT;
+        this.sentAt = LocalDateTime.now();
+    }
+
+    public void markAsFailed(String errorMessage){
+        this.status = NotificationStatus.FAILED;
+        this.errorMessage = errorMessage;
+    }
+
+    public void incrementRetry(){
+        this.retryCount++;
+        if (this.retryCount >= this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
+        else this.status = NotificationStatus.PENDING;
     }
 }
