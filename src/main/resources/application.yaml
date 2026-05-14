@@ -3,7 +3,9 @@ server:
 
 spring:
   application:
-    name: notificationservice
+    name: notification-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}  # mặc định dev, prod override bằng env var
 
 logging:
   level:
