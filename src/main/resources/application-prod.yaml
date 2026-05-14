@@ -1,4 +1,28 @@
+spring:
+  datasource:
+    url: ${DBMS_CONNECTION}        # không có default — bắt buộc phải set
+    username: ${DBMS_USERNAME}
+    password: ${DBMS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20        # prod cần tune connection pool
+      minimum-idle: 5
 
-jpa:
-  hibernate:
-    ddl-auto: validate
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    root: WARN                     # prod chỉ log WARN trở lên
+    com.project.notificationservice: INFO
