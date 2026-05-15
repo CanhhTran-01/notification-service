@@ -8,12 +8,16 @@ import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.sender.NotificationSender;
 import com.project.notificationservice.service.NotificationService;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
@@ -26,28 +30,40 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Async("notificationExecutor")
+    @Transactional
     @Override
     public void send(Notification notification) {
-        // checking before processing
-        NotificationSender sender = senderMap.get(notification.getChannel());
 
+        // idempotency checking
+        if (notificationRepository.existsByEventId(notification.getEventId())) {
+            log.warn("Duplicate event detected, skipping: {}", notification.getEventId());
+            return;
+        }
+
+        // channel checking
+        NotificationSender sender = senderMap.get(notification.getChannel());
         if (sender == null) {
             throw new BaseException(ErrorCode.UNSUPPORTED_CHANNEL);
         }
 
         // start processing
-        notification.setStatus(NotificationStatus.PROCESSING);
+        notification.markAsProcessing();
         notificationRepository.save(notification);
 
         try {
             sender.send(notification);
-            notification.setStatus(NotificationStatus.SENT);
+            notification.markAsSent();
             notificationRepository.save(notification);
 
         } catch (Exception exception) {
-            notification.setStatus(NotificationStatus.FAILED);
-            notification.setErrorMessage(exception.getMessage());
+
+            notification.incrementRetry(); // PENDING -> Scheduled Job scan DB for retrying
             notificationRepository.save(notification);
+
+            if (notification.getStatus() == NotificationStatus.FAILED) {
+                // FAILED -> DLQ
+                throw new AmqpRejectAndDontRequeueException(exception);
+            }
         }
     }
 }

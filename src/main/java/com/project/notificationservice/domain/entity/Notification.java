@@ -71,17 +71,21 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void markAsSent(){
+    public void markAsProcessing() {
+        this.status = NotificationStatus.PROCESSING;
+    }
+
+    public void markAsSent() {
         this.status = NotificationStatus.SENT;
         this.sentAt = LocalDateTime.now();
     }
 
-    public void markAsFailed(String errorMessage){
+    public void markAsFailed(String errorMessage) {
         this.status = NotificationStatus.FAILED;
         this.errorMessage = errorMessage;
     }
 
-    public void incrementRetry(){
+    public void incrementRetry() {
         this.retryCount++;
         if (this.retryCount >= this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
         else this.status = NotificationStatus.PENDING;
