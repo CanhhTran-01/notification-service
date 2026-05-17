@@ -19,7 +19,10 @@ public enum ErrorCode {
     // 3xxx - External Service Errors
     EMAIL_SERVICE_ERROR(3000, "Lỗi khi gửi email", HttpStatus.SERVICE_UNAVAILABLE),
     SMS_SERVICE_ERROR(3001, "Lỗi khi gửi SMS", HttpStatus.SERVICE_UNAVAILABLE),
-    PUSH_SERVICE_ERROR(3002, "Lỗi khi gửi push notification", HttpStatus.SERVICE_UNAVAILABLE);
+    PUSH_SERVICE_ERROR(3002, "Lỗi khi gửi push notification", HttpStatus.SERVICE_UNAVAILABLE),
+
+    // 4xxx — Message Broker Errors
+    MESSAGE_BROKER_ERROR(4000, "Lỗi khi gửi message", HttpStatus.SERVICE_UNAVAILABLE);
 
     private final int code;
     private final String message;
