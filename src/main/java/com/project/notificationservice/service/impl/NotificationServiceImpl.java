@@ -61,8 +61,8 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRepository.save(notification);
 
             if (notification.getStatus() == NotificationStatus.FAILED) {
-                // FAILED -> DLQ
-                throw new AmqpRejectAndDontRequeueException(exception);
+                // FAILED
+                throw new AmqpRejectAndDontRequeueException(exception); // chấp nhận exception bị executor nuốt - fail silently
             }
         }
     }
