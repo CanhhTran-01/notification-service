@@ -21,6 +21,7 @@ public class NotificationConsumer {
     public void receive(NotificationEvent event) {
 
         for (var channel : event.getChannels()) {
+
             try {
                 Notification notification = Notification.builder()
                         .eventId(event.getEventId())
