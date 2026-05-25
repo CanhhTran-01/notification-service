@@ -4,41 +4,57 @@ import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;
+import com.project.notificationservice.repository.NotificationTemplateRepository;
 import com.project.notificationservice.sender.NotificationSender;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationSender implements NotificationSender {
 
+    private final NotificationTemplateRepository notificationTemplateRepository;
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
+    private final SpringTemplateEngine stringTemplateEngine;
 
     @Value("${spring.mail.username}")
-    private String fromEmail;
+    private final String fromEmail;
+
+    public EmailNotificationSender(
+            NotificationTemplateRepository notificationTemplateRepository,
+            JavaMailSender mailSender,
+            @Qualifier("stringTemplateEngine") SpringTemplateEngine stringTemplateEngine,
+            @Value("${spring.mail.username}") String fromEmail ) {
+
+        this.notificationTemplateRepository = notificationTemplateRepository;
+        this.mailSender = mailSender;
+        this.stringTemplateEngine = stringTemplateEngine;
+        this.fromEmail = fromEmail;
+    }
 
     @Override
     public void send(Notification notification) {
         try {
-            //
-            String subject = (String) notification.getPayload().getOrDefault("subject", "Thông báo mới");
-            String title = (String) notification.getPayload().getOrDefault("title", "Thông báo");
-            String content = (String) notification.getPayload().getOrDefault("content", "");
+            // tìm template tương ứng với eventType(template_code)
+            var template = notificationTemplateRepository
+                    .findByTemplateCodeAndChannelAndIsActiveTrue(notification.getEventType(), notification.getChannel())
+                    .orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));
 
+            // tạo thymeleaf object
             Context context = new Context();
-            context.setVariable("title", title);
-            context.setVariable("content", content);
+            context.setVariables(notification.getPayload()); // set payload vào
 
-            String htmlContent = templateEngine.process("email/notification", context);
+            // lấy subject + map variable tương ứng từ context
+            String subject = stringTemplateEngine.process(template.getSubjectTemplate(), context);
+            String htmlContent = stringTemplateEngine.process(template.getBodyTemplate(), context);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -51,7 +67,12 @@ public class EmailNotificationSender implements NotificationSender {
             mailSender.send(message);
             log.info("Email sent successfully to: {}", notification.getRecipientContact());
 
+        } catch (BaseException exception) {
+
+            log.error("Failed to send email with error: {}", exception.getMessage());
+            throw exception;
         } catch (Exception exception) {
+
             log.error("Failed to send email to {}: {}", notification.getRecipientContact(), exception.getMessage());
             throw new BaseException(ErrorCode.EMAIL_SERVICE_ERROR);
         }

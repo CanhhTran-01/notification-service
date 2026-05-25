@@ -1,6 +1,7 @@
 package com.project.notificationservice.domain.entity;
 
 import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.domain.enums.EventType;
 import com.project.notificationservice.domain.enums.NotificationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -33,6 +34,10 @@ public class Notification {
     @Column(nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Channel channel;
+
+    @Column(name = "event_type", nullable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
