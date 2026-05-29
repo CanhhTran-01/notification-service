@@ -3,6 +3,7 @@ package com.project.notificationservice.domain.entity;
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.domain.enums.EventType;
 import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.domain.enums.ServiceSource;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -24,6 +25,10 @@ public class Notification {
     @UuidGenerator
     @Column(updatable = false, nullable = false)
     private UUID id;
+
+    @Column(updatable = false, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ServiceSource source;
 
     @Column(name = "recipient_id", updatable = false)
     private String recipientId;
@@ -92,7 +97,7 @@ public class Notification {
 
     public void incrementRetry() {
         this.retryCount++;
-        if (this.retryCount >= this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
+        if (this.retryCount > this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
         else this.status = NotificationStatus.PENDING;
     }
 }

@@ -17,4 +17,6 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     List<Notification> findByStatusAndRetryCountLessThan(NotificationStatus status, int maxRetries);
 
     Page<Notification> findByRecipientIdOrderByCreatedAtDesc(String recipientId, Pageable pageable);
+
+    Page<Notification> findBySourceOrderByCreatedAtDesc(String source, Pageable pageable);
 }

@@ -25,6 +25,7 @@ public class NotificationConsumer {
             try {
                 Notification notification = Notification.builder()
                         .eventId(event.getEventId())
+                        .source(event.getSource())
                         .eventType(event.getEventType())
                         .recipientId(event.getRecipient().getUserId())
                         .recipientContact(event.getRecipient().getContactByChannel(channel))

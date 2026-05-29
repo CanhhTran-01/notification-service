@@ -2,6 +2,7 @@ package com.project.notificationservice.dto;
 
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.domain.enums.EventType;
+import com.project.notificationservice.domain.enums.ServiceSource;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ public class NotificationEvent {
     @NotBlank
     private String eventId;             // idempotency check        - ok
     private EventType eventType;        // pick template            - ok
-    private String source;              // logging/monitoring
+    private ServiceSource source;       // logging/monitoring       - ok
     private String version;             // backward compatibility
     private LocalDateTime timestamp;    // audit log
 
