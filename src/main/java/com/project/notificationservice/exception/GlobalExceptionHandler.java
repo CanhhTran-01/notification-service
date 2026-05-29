@@ -1,6 +1,6 @@
 package com.project.notificationservice.exception;
 
-import com.project.notificationservice.dto.response.ApiResponse;
+import com.project.notificationservice.dto.ApiResponse;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

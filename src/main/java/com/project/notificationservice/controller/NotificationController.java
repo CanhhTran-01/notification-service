@@ -1,7 +1,7 @@
 package com.project.notificationservice.controller;
 
 import com.project.notificationservice.dto.NotificationEvent;
-import com.project.notificationservice.dto.response.ApiResponse;
+import com.project.notificationservice.dto.ApiResponse;
 import com.project.notificationservice.publisher.NotificationPublisher;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

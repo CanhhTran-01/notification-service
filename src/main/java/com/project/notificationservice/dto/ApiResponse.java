@@ -1,4 +1,4 @@
-package com.project.notificationservice.dto.response;
+package com.project.notificationservice.dto;
 
 import com.project.notificationservice.exception.ErrorCode;
 import lombok.Builder;

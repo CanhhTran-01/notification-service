@@ -17,9 +17,8 @@ public class NotificationEvent {
 
     // Header - send to ?
     @NotBlank
-    private String eventId;             // idempotency check
-
-    private EventType eventType;        // pick template
+    private String eventId;             // idempotency check        - ok
+    private EventType eventType;        // pick template            - ok
     private String source;              // logging/monitoring
     private String version;             // backward compatibility
     private LocalDateTime timestamp;    // audit log

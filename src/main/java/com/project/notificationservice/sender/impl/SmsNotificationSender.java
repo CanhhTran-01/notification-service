@@ -12,6 +12,8 @@ public class SmsNotificationSender implements NotificationSender {
 
     @Override
     public void send(Notification notification) {
+
+        // TODO: integrate with SMS gateway (Twilio/VNPT)
         log.info("send SMS to {} with PAYLOAD {}", notification.getRecipientContact(), notification.getPayload());
     }
 

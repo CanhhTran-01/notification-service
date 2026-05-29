@@ -12,6 +12,8 @@ public class PushNotificationSender implements NotificationSender {
 
     @Override
     public void send(Notification notification) {
+
+        // TODO: integrate with FCM (Firebase)
         log.info("send PUSH to {} with PAYLOAD {}", notification.getRecipientContact(), notification.getPayload());
     }
 
