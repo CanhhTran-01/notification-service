@@ -16,6 +16,7 @@ public enum ErrorCode {
     UNSUPPORTED_CHANNEL(2001, "Kênh không hỗ trợ", HttpStatus.BAD_REQUEST),
     NOTIFICATION_NOT_FOUND(2002, "Không tìm thấy notification", HttpStatus.NOT_FOUND),
     TEMPLATE_NOT_FOUND(2003, "Không tìm thấy template tương ứng", HttpStatus.NOT_FOUND),
+    PREFERENCE_NOT_FOUND(2004, "Không tìm thấy preference", HttpStatus.NOT_FOUND),
 
     // 3xxx - External Service Errors
     EMAIL_SERVICE_ERROR(3000, "Lỗi khi gửi email", HttpStatus.SERVICE_UNAVAILABLE),

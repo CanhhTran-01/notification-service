@@ -18,11 +18,12 @@ public class NotificationEvent {
 
     // Header - send to ?
     @NotBlank
-    private String eventId;             // idempotency check        - ok
-    private EventType eventType;        // pick template            - ok
-    private ServiceSource source;       // logging/monitoring       - ok
-    private String version;             // backward compatibility
-    private LocalDateTime timestamp;    // audit log
+    private String eventId; // idempotency check        - ok
+
+    private EventType eventType; // pick template            - ok
+    private ServiceSource source; // logging/monitoring       - ok
+    private String version; // backward compatibility
+    private LocalDateTime timestamp; // audit log
 
     // Recipient - who receive ?
     @NotNull

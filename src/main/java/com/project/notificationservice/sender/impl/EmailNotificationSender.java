@@ -7,7 +7,6 @@ import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.repository.NotificationTemplateRepository;
 import com.project.notificationservice.sender.NotificationSender;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +31,7 @@ public class EmailNotificationSender implements NotificationSender {
             NotificationTemplateRepository notificationTemplateRepository,
             JavaMailSender mailSender,
             @Qualifier("stringTemplateEngine") SpringTemplateEngine stringTemplateEngine,
-            @Value("${spring.mail.username}") String fromEmail ) {
+            @Value("${spring.mail.username}") String fromEmail) {
 
         this.notificationTemplateRepository = notificationTemplateRepository;
         this.mailSender = mailSender;

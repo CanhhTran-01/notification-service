@@ -1,4 +1,4 @@
-package com.project.notificationservice.publisher;
+package com.project.notificationservice.mock;
 
 import com.project.notificationservice.config.RabbitMQConfig;
 import com.project.notificationservice.dto.NotificationEvent;
@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationPublisher {
+public class MockExternalServicePublisher {
+
     private final AmqpTemplate amqpTemplate;
 
     public void publish(NotificationEvent event) {

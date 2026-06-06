@@ -13,8 +13,7 @@ public class InAppNotificationSender implements NotificationSender {
     @Override
     public void send(Notification notification) {
 
-        log.info("InApp notification delivered to recipientId={}",
-                notification.getRecipientId());
+        log.info("InApp notification delivered to recipientId={}", notification.getRecipientId());
     }
 
     @Override
