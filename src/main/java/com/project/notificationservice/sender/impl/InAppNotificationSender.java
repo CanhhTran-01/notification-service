@@ -13,6 +13,7 @@ public class InAppNotificationSender implements NotificationSender {
     @Override
     public void send(Notification notification) {
 
+        // TODO: integrate WebSocket for real-time push when user is online
         log.info("InApp notification delivered to recipientId={}", notification.getRecipientId());
     }
 
