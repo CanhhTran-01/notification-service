@@ -43,8 +43,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void send(Notification notification) {
 
         // idempotency checking
-        if (notificationRepository.existsByEventId(notification.getEventId())) {
-            log.warn("Duplicate event detected, skipping: {}", notification.getEventId());
+        if (notificationRepository.existsByEventIdAndChannel(notification.getEventId(), notification.getChannel())) {
+
+            log.warn("Duplicate event detected, skipping: eventId [{}] with channel [{}]", notification.getEventId(), notification.getChannel());
             return;
         }
 

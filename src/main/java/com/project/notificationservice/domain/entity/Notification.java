@@ -14,7 +14,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "channel"}))
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -97,7 +97,7 @@ public class Notification {
 
     public void incrementRetry() {
         this.retryCount++;
-        if (this.retryCount > this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
+        if (this.retryCount >= this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
         else this.status = NotificationStatus.PENDING;
     }
 }

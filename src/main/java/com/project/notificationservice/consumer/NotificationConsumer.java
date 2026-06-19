@@ -3,8 +3,10 @@ package com.project.notificationservice.consumer;
 import com.project.notificationservice.config.RabbitMQConfig;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.dto.NotificationEvent;
+import com.project.notificationservice.exception.RateLimitingException;
 import com.project.notificationservice.service.NotificationPreferenceService;
 import com.project.notificationservice.service.NotificationService;
+import com.project.notificationservice.service.RateLimitingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
 
     private final NotificationService notificationService;
+    private final RateLimitingService rateLimitingService;
     private final NotificationPreferenceService preferenceService;
 
     @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
@@ -37,6 +40,10 @@ public class NotificationConsumer {
                     continue; // skip channel này, tiếp tục channel khác
                 }
 
+                // Rate-limiting
+                rateLimitingService.rateLimiting(
+                        event.getRecipient().getUserId(), channel, event.getEventType(), event.getSource());
+
                 Notification notification = Notification.builder()
                         .eventId(event.getEventId())
                         .source(event.getSource())
@@ -49,8 +56,19 @@ public class NotificationConsumer {
 
                 notificationService.send(notification);
 
+            } catch (RateLimitingException exception) {
+
+                log.warn(
+                        "Rate limit triggered: recipientId={}, channel={}, eventId={}, cause={}",
+                        event.getRecipient().getUserId(),
+                        channel,
+                        event.getEventId(),
+                        exception.getMessage());
+
             } catch (Exception exception) {
 
+                // 1 channel lỗi -> dừng ngay việc gửi ném tin sang DLQ để retry
+                // idempotecy(eventId + channel) giúp không gửi lại tin đã gửi 
                 log.error(
                         "Invalid data: channel={}, eventId={}, error={}",
                         channel,

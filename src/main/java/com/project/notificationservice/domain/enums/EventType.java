@@ -12,5 +12,8 @@ public enum EventType {
     ACCOUNT_LOCKED,
 
     // External Service
-    ORDER_CONFIRMED
+    ORDER_CONFIRMED,
+
+    // Default value
+    GLOBAL
 }
