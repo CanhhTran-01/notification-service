@@ -3,8 +3,8 @@ package com.project.notificationservice.repository;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.domain.enums.NotificationStatus;
-import com.project.notificationservice.domain.enums.ServiceSource;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,12 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     List<Notification> findByStatusAndRetryCountLessThan(NotificationStatus status, int maxRetries);
 
-    Page<Notification> findByRecipientIdOrderByCreatedAtDesc(String recipientId, Pageable pageable);
+    Optional<Notification> findByIdAndRecipientId(UUID id, String recipientId);
 
-    Page<Notification> findBySourceOrderByCreatedAtDesc(ServiceSource source, Pageable pageable);
+    // Channel luôn là IN_APP
+    Page<Notification> findByRecipientIdAndChannelOrderByCreatedAtDesc(
+            String recipientId, Channel channel, Pageable pageable);
+
+    // Channel luôn là IN_APP
+    long countByRecipientIdAndChannelAndIsReadFalse(String recipientId, Channel channel);
 }

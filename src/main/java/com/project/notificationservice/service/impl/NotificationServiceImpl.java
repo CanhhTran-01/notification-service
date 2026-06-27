@@ -4,6 +4,7 @@ import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.dto.NotificationResponse;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.repository.NotificationLogRepository;
@@ -13,9 +14,12 @@ import com.project.notificationservice.service.NotificationService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +49,10 @@ public class NotificationServiceImpl implements NotificationService {
         // idempotency checking
         if (notificationRepository.existsByEventIdAndChannel(notification.getEventId(), notification.getChannel())) {
 
-            log.warn("Duplicate event detected, skipping: eventId [{}] with channel [{}]", notification.getEventId(), notification.getChannel());
+            log.warn(
+                    "Duplicate event detected, skipping: eventId [{}] with channel [{}]",
+                    notification.getEventId(),
+                    notification.getChannel());
             return;
         }
 
@@ -89,6 +96,33 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public Page<NotificationResponse> getHistory(String recipientId, Pageable pageable) {
+
+        Page<Notification> pageList = notificationRepository.findByRecipientIdAndChannelOrderByCreatedAtDesc(
+                recipientId, Channel.IN_APP, pageable);
+
+        return pageList.map(this::toResponse);
+    }
+
+    @Override
+    @Transactional
+    public void updateRead(String notificationId, String recipientId) {
+
+        // tránh IDOR
+        Notification notification = notificationRepository
+                .findByIdAndRecipientId(UUID.fromString(notificationId), recipientId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        notification.markAsRead();
+    }
+
+    @Override
+    public Long countNotReadNotification(String recipientId) {
+
+        return notificationRepository.countByRecipientIdAndChannelAndIsReadFalse(recipientId, Channel.IN_APP);
+    }
+
     // handle logging notification
     private void logging(
             Notification notification, NotificationStatus oldStatus, NotificationStatus newStatus, String message) {
@@ -99,5 +133,16 @@ public class NotificationServiceImpl implements NotificationService {
                 .newStatus(newStatus)
                 .message(message)
                 .build());
+    }
+
+    private NotificationResponse toResponse(Notification notification) {
+        return NotificationResponse.builder()
+                .id(notification.getId())
+                .eventType(notification.getEventType())
+                .isRead(notification.isRead())
+                .payload(notification.getPayload())
+                .sentAt(notification.getSentAt())
+                .createdAt(notification.getCreatedAt())
+                .build();
     }
 }

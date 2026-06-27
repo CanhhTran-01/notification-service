@@ -57,7 +57,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
         // tìm record ở DB và pessimistic Lock lại (xử lý case spam cùng lúc)
         RateLimiting record = rateLimitingRepository
-                .findByRecipientIdAndChannelAndEventTypeAndSource(recipientId, channel, eventType, source) // luôn lock -> tốn 1 round-trip
+                .findByRecipientIdAndChannelAndEventTypeAndSource(
+                        recipientId, channel, eventType, source) // luôn lock -> tốn 1 round-trip
                 .orElse(null); // không tìm thấy record
 
         if (record == null) {
@@ -73,7 +74,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                         .lastSendAt(now)
                         .build();
 
-                rateLimitingRepository.saveAndFlush(newRecord); // saveAndFlush(): đồng bộ hóa Persistence Context -> catch exception
+                rateLimitingRepository.saveAndFlush(
+                        newRecord); // saveAndFlush(): đồng bộ hóa Persistence Context -> catch exception
 
             } catch (DataIntegrityViolationException exception) {
 

@@ -68,7 +68,7 @@ public class NotificationConsumer {
             } catch (Exception exception) {
 
                 // 1 channel lỗi -> dừng ngay việc gửi ném tin sang DLQ để retry
-                // idempotecy(eventId + channel) giúp không gửi lại tin đã gửi 
+                // idempotecy(eventId + channel) giúp không gửi lại tin đã gửi
                 log.error(
                         "Invalid data: channel={}, eventId={}, error={}",
                         channel,

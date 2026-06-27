@@ -76,9 +76,22 @@ public class Notification {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "is_read", nullable = false)
+    @Builder.Default
+    @Setter
+    private boolean isRead = false;
+
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
+        this.readAt = LocalDateTime.now();
     }
 
     public void markAsProcessing() {
