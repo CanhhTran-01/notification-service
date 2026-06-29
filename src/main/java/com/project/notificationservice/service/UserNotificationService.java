@@ -1,13 +1,10 @@
 package com.project.notificationservice.service;
 
-import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.dto.NotificationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface NotificationService {
-
-    void send(Notification notification);
+public interface UserNotificationService {
 
     Page<NotificationResponse> getHistory(String recipientId, Pageable pageable);
 
