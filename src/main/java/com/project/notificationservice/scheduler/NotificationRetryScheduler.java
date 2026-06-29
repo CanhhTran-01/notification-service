@@ -5,7 +5,7 @@ import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.NotificationStatus;
 import com.project.notificationservice.repository.NotificationLogRepository;
 import com.project.notificationservice.repository.NotificationRepository;
-import com.project.notificationservice.service.NotificationService;
+import com.project.notificationservice.service.NotificationProcessorService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NotificationRetryScheduler {
 
-    private final NotificationService notificationService;
+    private final NotificationProcessorService notificationProcessorService;
     private final NotificationRepository notificationRepository;
     private final NotificationLogRepository notificationLogRepository;
 
@@ -54,7 +54,7 @@ public class NotificationRetryScheduler {
                     "retrying (attempt " + notification.getRetryCount() + "of " + notification.getMaxRetries()
                             + ")...");
 
-            notificationService.send(notification);
+            notificationProcessorService.send(notification);
         }
     }
 

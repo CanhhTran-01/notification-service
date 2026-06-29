@@ -5,7 +5,7 @@ import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.exception.RateLimitingException;
 import com.project.notificationservice.service.NotificationPreferenceService;
-import com.project.notificationservice.service.NotificationService;
+import com.project.notificationservice.service.NotificationProcessorService;
 import com.project.notificationservice.service.RateLimitingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NotificationConsumer {
 
-    private final NotificationService notificationService;
+    private final NotificationProcessorService notificationProcessorService;
     private final RateLimitingService rateLimitingService;
     private final NotificationPreferenceService preferenceService;
 
@@ -54,7 +54,7 @@ public class NotificationConsumer {
                         .payload(event.getPayload())
                         .build();
 
-                notificationService.send(notification);
+                notificationProcessorService.send(notification);
 
             } catch (RateLimitingException exception) {
 
