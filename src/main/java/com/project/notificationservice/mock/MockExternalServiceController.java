@@ -23,8 +23,9 @@ public class MockExternalServiceController {
     @PostMapping("/notifications/publish")
     public ResponseEntity<?> publish(@RequestBody @Valid NotificationEvent event) {
 
-        // @Valid trigger validation annotations trong NotificationEvent
+        // validate tại controller trước khi publish -> tránh cho DLQ lưu message rác
         mockExternalServicePublisher.publish(event);
+
         return ResponseEntity.ok(ApiResponse.success("Published successfully"));
     }
 

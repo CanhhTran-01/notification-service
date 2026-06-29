@@ -23,7 +23,7 @@ public class NotificationConsumer {
     private final NotificationPreferenceService preferenceService;
 
     @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
-    public void receive(NotificationEvent event) {
+    public void consume(NotificationEvent event) {
 
         for (var channel : event.getChannels()) {
             try {
@@ -67,8 +67,8 @@ public class NotificationConsumer {
 
             } catch (Exception exception) {
 
-                // 1 channel lỗi -> dừng ngay việc gửi ném tin sang DLQ để retry
-                // idempotecy(eventId + channel) giúp không gửi lại tin đã gửi
+                // 1 channel lỗi -> dừng ngay việc gửi, ném tin sang DLQ để retry
+                // idempotecy(eventId + channel) giúp không gửi lại tin ở channel đã gửi rồi khi replay/retry
                 log.error(
                         "Invalid data: channel={}, eventId={}, error={}",
                         channel,

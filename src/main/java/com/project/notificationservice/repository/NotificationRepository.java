@@ -3,6 +3,7 @@ package com.project.notificationservice.repository;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.enums.Channel;
 import com.project.notificationservice.domain.enums.NotificationStatus;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +17,8 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     boolean existsByEventIdAndChannel(String eventId, Channel channel);
 
-    List<Notification> findByStatusAndRetryCountLessThan(NotificationStatus status, int maxRetries);
+    List<Notification> findByStatusAndRetryCountLessThanAndNextRetryTimeAfter(
+            NotificationStatus status, int maxRetries, LocalDateTime time);
 
     Optional<Notification> findByIdAndRecipientId(UUID id, String recipientId);
 

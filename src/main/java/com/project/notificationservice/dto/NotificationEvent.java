@@ -22,10 +22,9 @@ public class NotificationEvent {
 
     private EventType eventType; // pick template            - ok
     private ServiceSource source; // logging/monitoring       - ok
-    private String version; // backward compatibility
     private LocalDateTime timestamp; // audit log
 
-    // Recipient - who receive ?
+    // Recipient - who ?
     @NotNull
     private Recipient recipient;
 

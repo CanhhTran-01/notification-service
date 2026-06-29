@@ -1,9 +1,6 @@
 package com.project.notificationservice.domain.entity;
 
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.EventType;
-import com.project.notificationservice.domain.enums.NotificationStatus;
-import com.project.notificationservice.domain.enums.ServiceSource;
+import com.project.notificationservice.domain.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -84,6 +81,9 @@ public class Notification {
     @Column(name = "read_at")
     private LocalDateTime readAt;
 
+    @Column(name = "next_retry_time")
+    private LocalDateTime nextRetryTime;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -92,6 +92,13 @@ public class Notification {
     public void markAsRead() {
         this.isRead = true;
         this.readAt = LocalDateTime.now();
+    }
+
+    // cancelling message
+    public void cancelling(String errorMessage, CheckingGatewayType type) {
+        this.status = NotificationStatus.FAILED;
+        this.errorMessage = errorMessage;
+        if (type.equals(CheckingGatewayType.RECIPIENT_CONTACT_CHECKING)) this.recipientContact = "no information";
     }
 
     public void markAsProcessing() {
@@ -108,9 +115,21 @@ public class Notification {
         this.errorMessage = errorMessage;
     }
 
-    public void incrementRetry() {
+    public void incrementRetryAndCalculateNextTime(long baseDelaySeconds) {
         this.retryCount++;
-        if (this.retryCount >= this.maxRetries) this.markAsFailed("Đã đạt mức retry tối đa");
-        else this.status = NotificationStatus.PENDING;
+
+        if (this.retryCount >= this.maxRetries) {
+
+            this.markAsFailed("Đã đạt mức retry tối đa");
+            this.nextRetryTime = null;
+
+        } else {
+
+            // delay = base_delay * 2^(retryCount - 1)
+            // next_retry_time = now + delay
+            this.nextRetryTime =
+                    LocalDateTime.now().plusSeconds((long) (baseDelaySeconds * Math.pow(2, this.retryCount - 1)));
+            this.status = NotificationStatus.PENDING;
+        }
     }
 }

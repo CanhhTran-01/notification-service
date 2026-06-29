@@ -3,6 +3,7 @@ package com.project.notificationservice.service.impl;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.domain.enums.CheckingGatewayType;
 import com.project.notificationservice.domain.enums.NotificationStatus;
 import com.project.notificationservice.dto.NotificationResponse;
 import com.project.notificationservice.exception.BaseException;
@@ -17,7 +18,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -46,9 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void send(Notification notification) {
 
-        // idempotency checking
+        // checking gateway 1: idempotency checking
         if (notificationRepository.existsByEventIdAndChannel(notification.getEventId(), notification.getChannel())) {
-
             log.warn(
                     "Duplicate event detected, skipping: eventId [{}] with channel [{}]",
                     notification.getEventId(),
@@ -56,13 +55,26 @@ public class NotificationServiceImpl implements NotificationService {
             return;
         }
 
-        // channel checking
+        // checking gateway 2: channel checking
         NotificationSender sender = senderMap.get(notification.getChannel());
         if (sender == null) {
-            throw new BaseException(ErrorCode.UNSUPPORTED_CHANNEL);
+            handleBusinessFailure(
+                    notification,
+                    "Unsupported channel: " + notification.getChannel(),
+                    CheckingGatewayType.CHANNEL_CHECKING);
+            return;
         }
 
-        // start processing
+        // checking gateway 3: recipient_contact checking
+        if (notification.getRecipientContact() == null) {
+            handleBusinessFailure(
+                    notification,
+                    "Missing contact info for channel: " + notification.getChannel(),
+                    CheckingGatewayType.RECIPIENT_CONTACT_CHECKING);
+            return;
+        }
+
+        // vượt qua hết 3 cổng checking -> start processing
         NotificationStatus oldStatus = notification.getStatus(); // PENDING
 
         notification.markAsProcessing();
@@ -84,15 +96,13 @@ public class NotificationServiceImpl implements NotificationService {
 
             oldStatus = notification.getStatus(); // PROCESSING
 
-            notification.incrementRetry(); // PENDING -> Scheduled Job scan DB for retrying
+            // Scheduled Job scan DB for retrying with exponential backoff
+            notification.incrementRetryAndCalculateNextTime(60); // PENDING
+
             notificationRepository.save(notification);
 
+            // >= maxRetries -> FAILED
             logging(notification, oldStatus, notification.getStatus(), exception.getMessage());
-
-            // FAILED
-            if (notification.getStatus() == NotificationStatus.FAILED) {
-                throw new AmqpRejectAndDontRequeueException(exception); // chấp nhận bị executor nuốt - fail silently
-            }
         }
     }
 
@@ -121,6 +131,24 @@ public class NotificationServiceImpl implements NotificationService {
     public Long countNotReadNotification(String recipientId) {
 
         return notificationRepository.countByRecipientIdAndChannelAndIsReadFalse(recipientId, Channel.IN_APP);
+    }
+
+    // handle business failure
+    private void handleBusinessFailure(Notification notification, String errorMessage, CheckingGatewayType type) {
+
+        // System Log cho Dev/DevOps xem trên Console/Kibana
+        log.warn(
+                "Cannot process eventId [{}] with channel [{}]: {}",
+                notification.getEventId(),
+                notification.getChannel(),
+                errorMessage);
+
+        // Lưu notification FAILED vào DB phục vụ retry sau này
+        notification.cancelling(errorMessage, type); // set status FAILED + errorMessage
+        notificationRepository.save(notification);
+
+        // Business Log tạo Audit Trail cho Admin
+        logging(notification, NotificationStatus.UNKNOWN, NotificationStatus.CANCELLED, errorMessage);
     }
 
     // handle logging notification

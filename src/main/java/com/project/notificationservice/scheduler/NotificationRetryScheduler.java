@@ -1,9 +1,12 @@
 package com.project.notificationservice.scheduler;
 
 import com.project.notificationservice.domain.entity.Notification;
+import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.repository.NotificationLogRepository;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.service.NotificationService;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +20,14 @@ public class NotificationRetryScheduler {
 
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final NotificationLogRepository notificationLogRepository;
 
-    @Scheduled(fixedDelay = 300000)
+    @Scheduled(fixedDelay = 10000)
     public void retryPendingNotifications() {
 
         List<Notification> notifications =
-                notificationRepository.findByStatusAndRetryCountLessThan(NotificationStatus.PENDING, 3);
+                notificationRepository.findByStatusAndRetryCountLessThanAndNextRetryTimeAfter(
+                        NotificationStatus.PENDING, 3, LocalDateTime.now());
 
         if (notifications.isEmpty()) {
             log.info("No pending notifications to retry");
@@ -30,13 +35,38 @@ public class NotificationRetryScheduler {
         }
 
         log.info("Retry scheduler executed: found {} pending notifications", notifications.size());
+
         for (var notification : notifications) {
+
             log.info(
                     "Retrying notification: id={}, channel={}, retryCount={}",
                     notification.getId(),
                     notification.getChannel(),
                     notification.getRetryCount());
+
+            NotificationStatus oldStatus = notification.getStatus();
+            NotificationStatus newStatus = NotificationStatus.RETRYING;
+
+            logging(
+                    notification,
+                    oldStatus,
+                    newStatus,
+                    "retrying (attempt " + notification.getRetryCount() + "of " + notification.getMaxRetries()
+                            + ")...");
+
             notificationService.send(notification);
         }
+    }
+
+    // handle logging notification
+    private void logging(
+            Notification notification, NotificationStatus oldStatus, NotificationStatus newStatus, String message) {
+
+        notificationLogRepository.save(NotificationLog.builder()
+                .notification(notification)
+                .oldStatus(oldStatus)
+                .newStatus(newStatus)
+                .message(message)
+                .build());
     }
 }
