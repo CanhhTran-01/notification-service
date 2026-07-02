@@ -61,7 +61,7 @@ public class Notification {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "event_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "event_id", nullable = false, updatable = false)
     private String eventId;
 
     @Column(name = "scheduled_at")
@@ -95,10 +95,9 @@ public class Notification {
     }
 
     // cancelling message
-    public void cancelling(String errorMessage, CheckingGatewayType type) {
+    public void cancelling(String errorMessage) {
         this.status = NotificationStatus.FAILED;
         this.errorMessage = errorMessage;
-        if (type.equals(CheckingGatewayType.RECIPIENT_CONTACT_CHECKING)) this.recipientContact = "no information";
     }
 
     public void markAsProcessing() {
@@ -113,6 +112,10 @@ public class Notification {
     public void markAsFailed(String errorMessage) {
         this.status = NotificationStatus.FAILED;
         this.errorMessage = errorMessage;
+    }
+
+    public void markAsRetrying() {
+        this.status = NotificationStatus.RETRYING;
     }
 
     public void incrementRetryAndCalculateNextTime(long baseDelaySeconds) {

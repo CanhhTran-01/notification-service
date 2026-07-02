@@ -17,7 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     boolean existsByEventIdAndChannel(String eventId, Channel channel);
 
-    List<Notification> findByStatusAndRetryCountLessThanAndNextRetryTimeAfter(
+    List<Notification> findByStatusAndRetryCountLessThanAndNextRetryTimeBefore(
             NotificationStatus status, int maxRetries, LocalDateTime time);
 
     Optional<Notification> findByIdAndRecipientId(UUID id, String recipientId);

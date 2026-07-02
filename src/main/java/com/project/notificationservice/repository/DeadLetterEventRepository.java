@@ -12,6 +12,9 @@ public interface DeadLetterEventRepository extends JpaRepository<DeadLetterEvent
     // Tìm các event chưa được resolve — admin query để xử lý
     List<DeadLetterEvent> findByResolvedFalseOrderByCreatedAtDesc();
 
+    // Tìm các event đã được resolve
+    List<DeadLetterEvent> findByResolvedTrueOrderByCreatedAtDesc();
+
     // Tìm các event theo queue name
     List<DeadLetterEvent> findByQueueNameAndResolvedFalse(String queueName);
 }

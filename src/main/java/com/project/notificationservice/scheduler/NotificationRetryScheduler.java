@@ -26,7 +26,7 @@ public class NotificationRetryScheduler {
     public void retryPendingNotifications() {
 
         List<Notification> notifications =
-                notificationRepository.findByStatusAndRetryCountLessThanAndNextRetryTimeAfter(
+                notificationRepository.findByStatusAndRetryCountLessThanAndNextRetryTimeBefore(
                         NotificationStatus.PENDING, 3, LocalDateTime.now());
 
         if (notifications.isEmpty()) {
@@ -44,14 +44,16 @@ public class NotificationRetryScheduler {
                     notification.getChannel(),
                     notification.getRetryCount());
 
-            NotificationStatus oldStatus = notification.getStatus();
-            NotificationStatus newStatus = NotificationStatus.RETRYING;
+            NotificationStatus oldStatus = notification.getStatus(); // PENDING
+            notification.markAsRetrying(); // PENDING -> RETRYING
+            notificationRepository.save(notification);
+            NotificationStatus newStatus = notification.getStatus(); // RETRYING
 
             logging(
                     notification,
                     oldStatus,
                     newStatus,
-                    "retrying (attempt " + notification.getRetryCount() + "of " + notification.getMaxRetries()
+                    "retrying (attempt " + notification.getRetryCount() + " of " + notification.getMaxRetries()
                             + ")...");
 
             notificationProcessorService.send(notification);

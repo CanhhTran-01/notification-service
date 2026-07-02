@@ -3,7 +3,6 @@ package com.project.notificationservice.service.impl;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.CheckingGatewayType;
 import com.project.notificationservice.domain.enums.NotificationStatus;
 import com.project.notificationservice.repository.NotificationLogRepository;
 import com.project.notificationservice.repository.NotificationRepository;
@@ -52,19 +51,13 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
         // checking gateway 2: channel checking
         NotificationSender sender = senderMap.get(notification.getChannel());
         if (sender == null) {
-            handleBusinessFailure(
-                    notification,
-                    "Unsupported channel: " + notification.getChannel(),
-                    CheckingGatewayType.CHANNEL_CHECKING);
+            handleBusinessFailure(notification, "Unsupported channel: " + notification.getChannel());
             return;
         }
 
         // checking gateway 3: recipient_contact checking
         if (notification.getRecipientContact() == null) {
-            handleBusinessFailure(
-                    notification,
-                    "Missing contact info for channel: " + notification.getChannel(),
-                    CheckingGatewayType.RECIPIENT_CONTACT_CHECKING);
+            handleBusinessFailure(notification, "Missing contact info for channel: " + notification.getChannel());
             return;
         }
 
@@ -101,7 +94,7 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
     }
 
     // handle business failure
-    private void handleBusinessFailure(Notification notification, String errorMessage, CheckingGatewayType type) {
+    private void handleBusinessFailure(Notification notification, String errorMessage) {
 
         // System Log cho Dev/DevOps xem trên Console/Kibana
         log.warn(
@@ -111,7 +104,7 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
                 errorMessage);
 
         // Lưu notification FAILED vào DB phục vụ retry sau này
-        notification.cancelling(errorMessage, type); // set status FAILED + errorMessage
+        notification.cancelling(errorMessage); // set status FAILED + errorMessage
         notificationRepository.save(notification);
 
         // Business Log tạo Audit Trail cho Admin
