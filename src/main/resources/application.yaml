@@ -13,6 +13,17 @@ logging:
 
 
 app:
+  async:
+    notification:
+      core-pool-size: 10
+      max-pool-size: 20
+      queue-capacity: 500
+
+  retry:
+    scheduler-fixed-delay-ms: 10000
+    max-retries: 3
+    base-delay-seconds: 60
+
   rate-limit:
     limits:
       email:

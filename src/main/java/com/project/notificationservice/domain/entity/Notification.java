@@ -51,8 +51,7 @@ public class Notification {
     private Map<String, Object> payload;
 
     @Column(name = "max_retries", nullable = false)
-    @Builder.Default
-    private Integer maxRetries = 3;
+    private Integer maxRetries;
 
     @Column(name = "retry_count", nullable = false)
     @Builder.Default

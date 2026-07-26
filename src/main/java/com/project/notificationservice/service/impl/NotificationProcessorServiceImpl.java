@@ -1,5 +1,6 @@
 package com.project.notificationservice.service.impl;
 
+import com.project.notificationservice.config.properties.RetryProperties;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.Channel;
@@ -23,15 +24,17 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
     private final Map<Channel, NotificationSender> senderMap;
     private final NotificationRepository notificationRepository;
     private final NotificationLogRepository notificationLogRepository;
+    private final RetryProperties retryProperties;
 
     public NotificationProcessorServiceImpl(
             List<NotificationSender> senders,
             NotificationRepository notificationRepository,
-            NotificationLogRepository notificationLogRepository) {
+            NotificationLogRepository notificationLogRepository, RetryProperties retryProperties) {
 
         this.senderMap = senders.stream().collect(Collectors.toMap(NotificationSender::getChannel, sender -> sender));
         this.notificationRepository = notificationRepository;
         this.notificationLogRepository = notificationLogRepository;
+        this.retryProperties = retryProperties;
     }
 
     @Async("notificationExecutor")
@@ -91,7 +94,7 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
             oldStatus = notification.getStatus(); // PROCESSING
 
             // Scheduled Job scan DB for retrying with exponential backoff
-            notification.incrementRetryAndCalculateNextTime(60); // PENDING
+            notification.incrementRetryAndCalculateNextTime(retryProperties.getBaseDelaySeconds()); // PENDING
 
             notificationRepository.save(notification);
 

@@ -1,5 +1,6 @@
 package com.project.notificationservice.scheduler;
 
+import com.project.notificationservice.config.properties.RetryProperties;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.domain.entity.NotificationLog;
 import com.project.notificationservice.domain.enums.NotificationStatus;
@@ -22,13 +23,14 @@ public class NotificationRetryScheduler {
     private final NotificationProcessorService notificationProcessorService;
     private final NotificationRepository notificationRepository;
     private final NotificationLogRepository notificationLogRepository;
+    private final RetryProperties retryProperties;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelayString = "${app.retry.scheduler-fixed-delay-ms}")
     public void retryPendingNotifications() {
 
         List<Notification> notifications =
                 notificationRepository.findByStatusAndRetryCountLessThanAndNextRetryTimeBefore(
-                        NotificationStatus.PENDING, 3, LocalDateTime.now());
+                        NotificationStatus.PENDING, retryProperties.getMaxRetries(), LocalDateTime.now());
 
         if (notifications.isEmpty()) {
             log.info("No pending notifications to retry");

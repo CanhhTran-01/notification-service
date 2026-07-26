@@ -1,6 +1,7 @@
 package com.project.notificationservice.consumer;
 
 import com.project.notificationservice.config.RabbitMQConfig;
+import com.project.notificationservice.config.properties.RetryProperties;
 import com.project.notificationservice.domain.entity.Notification;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.exception.RateLimitingException;
@@ -21,6 +22,7 @@ public class NotificationConsumer {
     private final NotificationProcessorService notificationProcessorService;
     private final RateLimitingService rateLimitingService;
     private final NotificationPreferenceService preferenceService;
+    private final RetryProperties retryProperties;
 
     @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
     public void consume(NotificationEvent event) {
@@ -52,6 +54,7 @@ public class NotificationConsumer {
                         .recipientContact(event.getRecipient().getContactByChannel(channel))
                         .channel(channel)
                         .payload(event.getPayload())
+                        .maxRetries(retryProperties.getMaxRetries())
                         .build();
 
                 notificationProcessorService.send(notification);
