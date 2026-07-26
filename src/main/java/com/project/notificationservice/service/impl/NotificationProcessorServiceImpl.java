@@ -40,12 +40,19 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
     public void send(Notification notification) {
 
         // checking gateway 1: idempotency checking
-        if (notificationRepository.existsByEventIdAndChannel(notification.getEventId(), notification.getChannel())) {
-            log.warn(
-                    "Duplicate event detected, skipping: eventId [{}] with channel [{}]",
-                    notification.getEventId(),
-                    notification.getChannel());
-            return;
+        if (notification.getId() == null) {
+            // CHƯA CÓ ID -> message lần đầu được gửi đi -> cần idempotency checking
+            if (notificationRepository.existsByEventIdAndChannel(
+                    notification.getEventId(), notification.getChannel())) {
+                log.warn(
+                        "Duplicate event detected, skipping: eventId [{}] with channel [{}]",
+                        notification.getEventId(),
+                        notification.getChannel());
+                return;
+            }
+        } else {
+            // ĐÃ CÓ ID -> là tiến trình Retry lấy từ DB lên -> bỏ qua idempotency checking
+            log.info("Processing retry for notification ID: [{}]", notification.getId());
         }
 
         // checking gateway 2: channel checking

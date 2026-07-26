@@ -2,12 +2,15 @@ package com.project.notificationservice.repository;
 
 import com.project.notificationservice.domain.entity.DeadLetterEvent;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DeadLetterEventRepository extends JpaRepository<DeadLetterEvent, UUID> {
+
+    Optional<DeadLetterEvent> findByIdAndQueueNameAndResolvedFalse(UUID id, String queueName);
 
     // Tìm các event chưa được resolve — admin query để xử lý
     List<DeadLetterEvent> findByResolvedFalseOrderByCreatedAtDesc();

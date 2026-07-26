@@ -22,6 +22,8 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     Optional<Notification> findByIdAndRecipientId(UUID id, String recipientId);
 
+    Optional<Notification> findByIdAndStatus(UUID id, NotificationStatus status);
+
     // Channel luôn là IN_APP
     Page<Notification> findByRecipientIdAndChannelOrderByCreatedAtDesc(
             String recipientId, Channel channel, Pageable pageable);

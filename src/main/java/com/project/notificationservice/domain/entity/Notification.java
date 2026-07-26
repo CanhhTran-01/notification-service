@@ -135,4 +135,11 @@ public class Notification {
             this.status = NotificationStatus.PENDING;
         }
     }
+
+    public void resetForRetry() {
+        this.status = NotificationStatus.PENDING;
+        this.retryCount = 0;
+        this.errorMessage = null;
+        this.nextRetryTime = LocalDateTime.now(); // retry ngay
+    }
 }
