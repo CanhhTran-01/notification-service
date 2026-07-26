@@ -42,7 +42,7 @@ public class EmailNotificationSender implements NotificationSender {
     @Override
     public void send(Notification notification) {
         try {
-            // tìm template tương ứng với eventType(template_code)
+            // tìm template tương ứng với eventType trong notification_entity (== template_code trong template_entity)
             var template = notificationTemplateRepository
                     .findByTemplateCodeAndChannelAndIsActiveTrue(notification.getEventType(), notification.getChannel())
                     .orElseThrow(() -> new BaseException(ErrorCode.TEMPLATE_NOT_FOUND));

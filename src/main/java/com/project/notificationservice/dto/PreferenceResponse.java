@@ -8,7 +8,6 @@ import lombok.Data;
 @Data
 @Builder
 public class PreferenceResponse {
-
     private String recipientId;
     private Channel channel;
     private boolean isEnabled;
