@@ -1,4 +1,4 @@
-package com.project.notificationservice.mock;
+package com.project.notificationservice.publisher;
 
 import com.project.notificationservice.config.RabbitMQConfig;
 import com.project.notificationservice.dto.NotificationEvent;
@@ -18,11 +18,19 @@ public class RabbitNotificationPublisher {
     private final AmqpTemplate amqpTemplate;
 
     public void publish(NotificationEvent event) {
+        // EMAIL-SMS-PUSH
+        send(event, RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.NOTIFICATION_ROUTING_KEY);
+    }
+
+    public void publishInApp(NotificationEvent event) {
+        // IN_APP
+        send(event, RabbitMQConfig.INAPP_EXCHANGE, RabbitMQConfig.INAPP_ROUTING_KEY);
+    }
+
+    private void send(NotificationEvent event, String exchange, String routingKey) {
         try {
-            amqpTemplate.convertAndSend(
-                    RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.NOTIFICATION_ROUTING_KEY, event);
-            log.info(
-                    "Published notification event: eventId={}, eventType={}", event.getEventId(), event.getEventType());
+            amqpTemplate.convertAndSend(exchange, routingKey, event);
+            log.info("Published event: eventId={}, eventType={}, exchange={}", event.getEventId(), event.getEventType(), exchange);
 
         } catch (AmqpException e) {
             log.error("Failed to publish event: eventId={}, error={}", event.getEventId(), e.getMessage());

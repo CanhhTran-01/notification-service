@@ -10,9 +10,17 @@ spring:
 logging:
   level:
     org.hibernate.orm.connections.pooling: WARN
-
+    com.project.notificationservice: DEBUG
 
 app:
+  sse:
+    heartbeat-interval-ms: 15000
+
+  rabbitmq:
+    inapp:
+      concurrent-consumers: 2
+      max-concurrent-consumers: 5
+
   async:
     notification:
       core-pool-size: 10
@@ -42,3 +50,6 @@ app:
         max-count: 3
         window-minutes: 1
         min-interval-seconds: 10
+
+  scheduling:
+    pool-size: 5

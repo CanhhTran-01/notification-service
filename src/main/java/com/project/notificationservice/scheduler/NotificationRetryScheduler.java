@@ -8,7 +8,6 @@ import com.project.notificationservice.repository.NotificationLogRepository;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.service.NotificationProcessorService;
 import java.time.LocalDateTime;
-import com.project.notificationservice.service.NotificationProcessorService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

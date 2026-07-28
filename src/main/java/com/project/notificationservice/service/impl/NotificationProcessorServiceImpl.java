@@ -29,7 +29,8 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
     public NotificationProcessorServiceImpl(
             List<NotificationSender> senders,
             NotificationRepository notificationRepository,
-            NotificationLogRepository notificationLogRepository, RetryProperties retryProperties) {
+            NotificationLogRepository notificationLogRepository,
+            RetryProperties retryProperties) {
 
         this.senderMap = senders.stream().collect(Collectors.toMap(NotificationSender::getChannel, sender -> sender));
         this.notificationRepository = notificationRepository;
@@ -37,12 +38,26 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
         this.retryProperties = retryProperties;
     }
 
+    // EMAIL, PUSH, SMS - with @Async
     @Async("notificationExecutor")
     @Transactional
     @Override
     public void send(Notification notification) {
+        processSending(notification);
+    }
+
+    // IN_APP - no @Async
+    @Transactional
+    @Override
+    public void sendInApp(Notification notification) {
+        processSending(notification);
+    }
+
+    // logic chung
+    private void processSending(Notification notification) {
 
         // checking gateway 1: idempotency checking
+        // id == null tức là Notification vừa được build mới từ Consumer (chưa từng persist)
         if (notification.getId() == null) {
             // CHƯA CÓ ID -> message lần đầu được gửi đi -> cần idempotency checking
             if (notificationRepository.existsByEventIdAndChannel(
@@ -114,13 +129,13 @@ public class NotificationProcessorServiceImpl implements NotificationProcessorSe
                 errorMessage);
 
         // Lưu notification FAILED vào DB phục vụ retry sau này
+        NotificationStatus oldStatus = notification.getStatus(); // thường là PENDNG
         notification.cancelling(errorMessage); // set status FAILED + errorMessage
         notificationRepository.save(notification);
 
         // Business Log tạo Audit Trail cho Admin
-        logging(notification, NotificationStatus.UNKNOWN, NotificationStatus.CANCELLED, errorMessage);
+        logging(notification, oldStatus, notification.getStatus(), errorMessage); // PENDING -> FAILED
     }
-
 
     // handle logging notification
     private void logging(

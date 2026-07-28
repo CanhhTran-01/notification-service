@@ -46,6 +46,7 @@ public class NotificationConsumer {
                 rateLimitingService.rateLimiting(
                         event.getRecipient().getUserId(), channel, event.getEventType(), event.getSource());
 
+                // Build notification
                 Notification notification = Notification.builder()
                         .eventId(event.getEventId())
                         .source(event.getSource())
@@ -57,10 +58,12 @@ public class NotificationConsumer {
                         .maxRetries(retryProperties.getMaxRetries())
                         .build();
 
+                // send
                 notificationProcessorService.send(notification);
 
             } catch (RateLimitingException exception) {
 
+                // Không trace bất kì message nào rơi vào đây, chỉ log
                 log.warn(
                         "Rate limit triggered: recipientId={}, channel={}, eventId={}, cause={}",
                         event.getRecipient().getUserId(),

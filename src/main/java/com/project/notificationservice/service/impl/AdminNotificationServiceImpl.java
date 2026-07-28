@@ -8,7 +8,7 @@ import com.project.notificationservice.domain.enums.NotificationStatus;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;
-import com.project.notificationservice.mock.RabbitNotificationPublisher;
+import com.project.notificationservice.publisher.RabbitNotificationPublisher;
 import com.project.notificationservice.repository.DeadLetterEventRepository;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.service.AdminNotificationService;

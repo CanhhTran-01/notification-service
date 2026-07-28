@@ -1,7 +1,8 @@
-package com.project.notificationservice.mock;
+package com.project.notificationservice.controller;
 
 import com.project.notificationservice.dto.ApiResponse;
 import com.project.notificationservice.dto.NotificationEvent;
+import com.project.notificationservice.publisher.RabbitNotificationPublisher;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,16 +11,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/external-service")
-public class MockExternalServiceController {
+public class NotificationPublisherController {
 
     private final RabbitNotificationPublisher rabbitNotificationPublisher;
 
     @PostMapping("/notifications/publish")
     public ResponseEntity<?> publish(@RequestBody @Valid NotificationEvent event) {
+        // validate tại tầng controller trước khi publish message cho broker
+        rabbitNotificationPublisher.publish(event); // EMAIL-PUSH-SMS
+        return ResponseEntity.ok(ApiResponse.success("Published successfully"));
+    }
 
-        // @Valid validate tại tầng controller trước khi publish message cho broker
-        rabbitNotificationPublisher.publish(event);
-
+    @PostMapping("/notifications/publish-inapp")
+    public ResponseEntity<?> publishInApp(@RequestBody @Valid NotificationEvent event) {
+        rabbitNotificationPublisher.publishInApp(event); // IN_APP
         return ResponseEntity.ok(ApiResponse.success("Published successfully"));
     }
 }
