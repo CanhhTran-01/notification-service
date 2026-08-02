@@ -1,4 +1,4 @@
-package com.project.notificationservice.domain.entity;
+package com.project.notificationservice.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

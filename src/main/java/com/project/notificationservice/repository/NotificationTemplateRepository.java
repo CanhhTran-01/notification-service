@@ -1,8 +1,8 @@
 package com.project.notificationservice.repository;
 
-import com.project.notificationservice.domain.entity.NotificationTemplate;
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.EventType;
+import com.project.notificationservice.entity.NotificationTemplate;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.EventType;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,10 +1,10 @@
 package com.project.notificationservice.service.impl;
 
 import com.project.notificationservice.config.properties.RetryProperties;
-import com.project.notificationservice.domain.entity.Notification;
-import com.project.notificationservice.domain.entity.NotificationLog;
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.entity.Notification;
+import com.project.notificationservice.entity.NotificationLog;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.NotificationStatus;
 import com.project.notificationservice.repository.NotificationLogRepository;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.sender.NotificationSender;

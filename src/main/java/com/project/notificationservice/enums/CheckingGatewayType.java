@@ -1,4 +1,4 @@
-package com.project.notificationservice.domain.enums;
+package com.project.notificationservice.enums;
 
 public enum CheckingGatewayType {
     CHANNEL_CHECKING,

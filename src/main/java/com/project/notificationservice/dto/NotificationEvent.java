@@ -1,8 +1,8 @@
 package com.project.notificationservice.dto;
 
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.EventType;
-import com.project.notificationservice.domain.enums.ServiceSource;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.EventType;
+import com.project.notificationservice.enums.ServiceSource;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

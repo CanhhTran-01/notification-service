@@ -2,7 +2,7 @@ package com.project.notificationservice.consumer;
 
 import com.project.notificationservice.config.RabbitMQConfig;
 import com.project.notificationservice.config.properties.RetryProperties;
-import com.project.notificationservice.domain.entity.Notification;
+import com.project.notificationservice.entity.Notification;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.exception.RateLimitingException;
 import com.project.notificationservice.service.NotificationPreferenceService;

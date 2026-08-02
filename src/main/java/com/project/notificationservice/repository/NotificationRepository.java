@@ -1,8 +1,8 @@
 package com.project.notificationservice.repository;
 
-import com.project.notificationservice.domain.entity.Notification;
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.entity.Notification;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.NotificationStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

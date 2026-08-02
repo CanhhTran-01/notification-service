@@ -1,6 +1,6 @@
 package com.project.notificationservice.service;
 
-import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.enums.Channel;
 import com.project.notificationservice.dto.PreferenceResponse;
 import java.util.List;
 

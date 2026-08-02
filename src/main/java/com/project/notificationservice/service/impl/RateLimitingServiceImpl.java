@@ -1,10 +1,10 @@
 package com.project.notificationservice.service.impl;
 
 import com.project.notificationservice.config.properties.RateLimitProperties;
-import com.project.notificationservice.domain.entity.RateLimiting;
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.EventType;
-import com.project.notificationservice.domain.enums.ServiceSource;
+import com.project.notificationservice.entity.RateLimiting;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.EventType;
+import com.project.notificationservice.enums.ServiceSource;
 import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.exception.RateLimitingException;
 import com.project.notificationservice.repository.RateLimitingRepository;

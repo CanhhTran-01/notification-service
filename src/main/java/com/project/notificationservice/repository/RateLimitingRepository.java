@@ -1,9 +1,9 @@
 package com.project.notificationservice.repository;
 
-import com.project.notificationservice.domain.entity.RateLimiting;
-import com.project.notificationservice.domain.enums.Channel;
-import com.project.notificationservice.domain.enums.EventType;
-import com.project.notificationservice.domain.enums.ServiceSource;
+import com.project.notificationservice.entity.RateLimiting;
+import com.project.notificationservice.enums.Channel;
+import com.project.notificationservice.enums.EventType;
+import com.project.notificationservice.enums.ServiceSource;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.util.UUID;

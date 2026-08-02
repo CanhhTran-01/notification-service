@@ -1,6 +1,6 @@
 package com.project.notificationservice.service.impl;
 
-import com.project.notificationservice.domain.entity.DeadLetterEvent;
+import com.project.notificationservice.entity.DeadLetterEvent;
 import com.project.notificationservice.repository.DeadLetterEventRepository;
 import com.project.notificationservice.service.DeadLetterService;
 import lombok.RequiredArgsConstructor;

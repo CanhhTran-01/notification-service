@@ -1,7 +1,7 @@
 package com.project.notificationservice.service.impl;
 
-import com.project.notificationservice.domain.entity.NotificationPreference;
-import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.entity.NotificationPreference;
+import com.project.notificationservice.enums.Channel;
 import com.project.notificationservice.dto.PreferenceResponse;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;

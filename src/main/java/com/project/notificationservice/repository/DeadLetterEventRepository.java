@@ -1,6 +1,6 @@
 package com.project.notificationservice.repository;
 
-import com.project.notificationservice.domain.entity.DeadLetterEvent;
+import com.project.notificationservice.entity.DeadLetterEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

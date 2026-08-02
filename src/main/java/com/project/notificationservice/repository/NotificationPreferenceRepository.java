@@ -1,7 +1,7 @@
 package com.project.notificationservice.repository;
 
-import com.project.notificationservice.domain.entity.NotificationPreference;
-import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.entity.NotificationPreference;
+import com.project.notificationservice.enums.Channel;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

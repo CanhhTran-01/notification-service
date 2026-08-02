@@ -1,6 +1,6 @@
 package com.project.notificationservice.dto;
 
-import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.enums.Channel;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.project.notificationservice.dto;
 
-import com.project.notificationservice.domain.enums.EventType;
+import com.project.notificationservice.enums.EventType;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;

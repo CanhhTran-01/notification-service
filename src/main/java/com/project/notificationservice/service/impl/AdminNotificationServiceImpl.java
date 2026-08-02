@@ -2,9 +2,9 @@ package com.project.notificationservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.notificationservice.domain.entity.DeadLetterEvent;
-import com.project.notificationservice.domain.entity.Notification;
-import com.project.notificationservice.domain.enums.NotificationStatus;
+import com.project.notificationservice.entity.DeadLetterEvent;
+import com.project.notificationservice.entity.Notification;
+import com.project.notificationservice.enums.NotificationStatus;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;

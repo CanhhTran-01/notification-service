@@ -1,6 +1,6 @@
-package com.project.notificationservice.domain.entity;
+package com.project.notificationservice.entity;
 
-import com.project.notificationservice.domain.enums.Channel;
+import com.project.notificationservice.enums.Channel;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
