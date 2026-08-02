@@ -24,9 +24,10 @@ public class EmailNotificationSender implements NotificationSender {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine stringTemplateEngine;
 
-    @Value("${spring.mail.username}")
     private final String fromEmail;
 
+    // IDE báo lỗi "Could not autowire. No beans of 'JavaMailSender' type found." là sai ---> ẩn
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public EmailNotificationSender(
             NotificationTemplateRepository notificationTemplateRepository,
             JavaMailSender mailSender,
