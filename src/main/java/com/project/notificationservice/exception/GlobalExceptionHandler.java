@@ -3,7 +3,10 @@ package com.project.notificationservice.exception;
 import com.project.notificationservice.dto.ApiResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,11 +18,32 @@ import org.springframework.web.context.request.async.AsyncRequestTimeoutExceptio
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({AsyncRequestTimeoutException.class, IOException.class // client đột ngột disconnect
+    private static final String SSE_PATH_SEGMENT = "/stream/";
+
+    // Xử lý riêng cho exception phát sinh từ SSE/Async streaming
+    // (client tự ngắt kết nối, timeout do EventSource tự reconnect...)
+    @ExceptionHandler({
+            AsyncRequestTimeoutException.class, // ít xảy ra do SseEmitter(0L)
+            ClientAbortException.class, // Tomcat ném khi client đóng kết nối đột ngột
+            IOException.class
     })
-    public void handleAsyncException(Exception exception) {
-        // Chỉ log — để Spring tự đóng response, không cần trả về ApiResponse (JSON)
-        log.debug("Async/SSE connection issue (expected behavior): {}", exception.getMessage());
+    public ResponseEntity<ApiResponse<?>> handleAsyncStreamException(Exception exception, HttpServletRequest request) {
+
+        // chỉ xét request URI chứa "/stream/"
+        if (request.getRequestURI().contains(SSE_PATH_SEGMENT)) {
+
+            // đây là exception bình thường của SSE (client tự ngắt/reconnect), chỉ log
+            log.debug("SSE stream interrupted at [{}]: {}", request.getRequestURI(), exception.getMessage());
+
+            // trả về response rỗng
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        // Đây là Exception xảy ra ở API khác không phải SSE, log error để giám sát
+        log.error("Unexpected I/O error at [{}]: {}", request.getRequestURI(), exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(ErrorCode.UNEXPECTED_ERROR));
     }
 
     @ExceptionHandler(BaseException.class)
