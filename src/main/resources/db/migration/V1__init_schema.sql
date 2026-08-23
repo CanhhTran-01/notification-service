@@ -1,5 +1,3 @@
--- V1__init_schema.sql
-
 -- 1. Bảng lưu trữ template thông báo
 CREATE TABLE notification_templates (
                                         id VARCHAR(36) PRIMARY KEY,
@@ -80,7 +78,3 @@ CREATE TABLE dead_letter_events (
                                     resolved BOOLEAN NOT NULL DEFAULT FALSE,
                                     created_at DATETIME(6) NOT NULL
 );
-
--- Thêm một số Index để tối ưu truy vấn
-CREATE INDEX idx_notifications_status ON notifications(status);
-CREATE INDEX idx_notifications_recipient ON notifications(recipient_id);

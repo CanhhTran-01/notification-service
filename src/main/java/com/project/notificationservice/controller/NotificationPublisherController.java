@@ -17,6 +17,12 @@ public class NotificationPublisherController {
 
     @PostMapping("/notifications/publish")
     public ResponseEntity<?> publish(@RequestBody @Valid NotificationEvent event) {
+        rabbitNotificationPublisher.dispatch(event);
+        return ResponseEntity.accepted().body(ApiResponse.success("Published successfully"));
+    }
+
+    @PostMapping("/notifications/publish-email")
+    public ResponseEntity<?> publishEmail(@RequestBody @Valid NotificationEvent event) {
         // validate tại tầng controller trước khi publish message cho broker
         rabbitNotificationPublisher.publish(event); // EMAIL-PUSH-SMS
         return ResponseEntity.accepted().body(ApiResponse.success("Published successfully"));

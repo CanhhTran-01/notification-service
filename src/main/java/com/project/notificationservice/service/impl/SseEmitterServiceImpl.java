@@ -17,15 +17,10 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     // nếu cần multi-device support -> Map<String, List<SseEmitter>>
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-    @Override
-    public SseEmitter subscribe(String recipientId) {
-
-        SseEmitter oldEmitter = emitters.get(recipientId); // tồn tại -> overwrite gây ra emitter "zombie"
-        if (oldEmitter != null) {
-            oldEmitter.complete(); // đóng kết nối cũ trước khi thay bằng cái mới
-        }
-
+    private SseEmitter createEmitter(String recipientId) {
         SseEmitter emitter = new SseEmitter(0L); // timeout vô hạn - kết nối vĩnh viễn cho đến khi đóng
+
+        // TODO: Dùng emitters.remove(key, value) hay emitters.remove(key) ?
 
         // khi kết nối đóng hoàn toàn
         emitter.onCompletion(() -> {
@@ -44,6 +39,21 @@ public class SseEmitterServiceImpl implements SseEmitterService {
             emitters.remove(recipientId);
             log.warn("SSE connection error for recipientId={}: {}", recipientId, e.getMessage());
         });
+
+        return emitter;
+    }
+
+    @Override
+    public SseEmitter subscribe(String recipientId) {
+
+        // checking
+        SseEmitter oldEmitter = emitters.get(recipientId); // tồn tại -> overwrite gây ra emitter "zombie"
+        if (oldEmitter != null) {
+            oldEmitter.complete(); // đóng kết nối cũ trước khi thay bằng cái mới
+        }
+
+        // khởi tạo và cấu hình Emitter mới
+        SseEmitter emitter = createEmitter(recipientId);
 
         emitters.put(recipientId, emitter);
         log.info("New SSE connection established for recipientId={}", recipientId);

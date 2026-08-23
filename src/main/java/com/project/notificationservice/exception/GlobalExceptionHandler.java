@@ -1,10 +1,9 @@
 package com.project.notificationservice.exception;
 
 import com.project.notificationservice.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,9 @@ public class GlobalExceptionHandler {
     // Xử lý riêng cho exception phát sinh từ SSE/Async streaming
     // (client tự ngắt kết nối, timeout do EventSource tự reconnect...)
     @ExceptionHandler({
-            AsyncRequestTimeoutException.class, // ít xảy ra do SseEmitter(0L)
-            ClientAbortException.class, // Tomcat ném khi client đóng kết nối đột ngột
-            IOException.class
+        AsyncRequestTimeoutException.class, // ít xảy ra do SseEmitter(0L)
+        ClientAbortException.class, // Tomcat ném khi client đóng kết nối đột ngột
+        IOException.class
     })
     public ResponseEntity<ApiResponse<?>> handleAsyncStreamException(Exception exception, HttpServletRequest request) {
 

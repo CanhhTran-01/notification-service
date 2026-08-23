@@ -1,8 +1,8 @@
 package com.project.notificationservice.service.impl;
 
+import com.project.notificationservice.dto.NotificationResponse;
 import com.project.notificationservice.entity.Notification;
 import com.project.notificationservice.enums.Channel;
-import com.project.notificationservice.dto.NotificationResponse;
 import com.project.notificationservice.exception.BaseException;
 import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.repository.NotificationRepository;
