@@ -4,8 +4,10 @@ server:
 spring:
   application:
     name: notification-service
+
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}  # mặc định dev, prod override bằng env var
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -14,6 +16,10 @@ spring:
         type:
           preferred_uuid_jdbc_type: VARCHAR # UUID được map thành VARCHAR/CHAR dưới Database MySQL
     show-sql: false
+
+  flyway:
+    # Tắt tính năng thay thế biến của Flyway để tránh xung đột với chuỗi template (như ${name}) trong SQL script
+    placeholder-replacement: false
 
 logging:
   level:

@@ -4,18 +4,18 @@
 INSERT INTO notification_templates (id, template_code, channel, subject_template, body_template, is_active, created_at)
 VALUES
     ('11111111-1111-1111-1111-111111111001', 'WELCOME', 'EMAIL',
-     'Chào mừng [[$${name}]]!',
-     'Xin chào [[$${name}]], cảm ơn bạn đã đăng ký. Mã xác nhận: [[$${code}]]',
+     'Chào mừng [[${name}]]!',
+     'Xin chào [[${name}]], cảm ơn bạn đã đăng ký. Mã xác nhận: [[${code}]]',
      true, NOW()),
 
     ('11111111-1111-1111-1111-111111111002', 'WELCOME', 'IN_APP',
      'Chào mừng bạn!',
-     'Xin chào [[$${name}]], cảm ơn bạn đã đăng ký hệ thống.',
+     'Xin chào [[${name}]], cảm ơn bạn đã đăng ký hệ thống.',
      true, NOW()),
 
     ('11111111-1111-1111-1111-111111111003', 'OTP_LOGIN', 'EMAIL',
      'Mã OTP đăng nhập',
-     'Mã OTP của bạn là: [[$${otp}]]. Có hiệu lực trong 5 phút.',
+     'Mã OTP của bạn là: [[${otp}]]. Có hiệu lực trong 5 phút.',
      true, NOW());
 
 
