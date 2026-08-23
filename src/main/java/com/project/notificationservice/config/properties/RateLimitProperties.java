@@ -14,11 +14,21 @@ public class RateLimitProperties {
 
     private Map<String, ChannelLimit> limits;
 
+    private DeadlockRetry deadlockRetry;
+
     @Setter
     @Getter
     public static class ChannelLimit {
         private int maxCount;
         private int windowMinutes;
         private int minIntervalSeconds;
+    }
+
+    @Setter
+    @Getter
+    public static class DeadlockRetry {
+        private int maxAttempts;
+        private long initialDelayMs;
+        private double multiplier;
     }
 }

@@ -65,5 +65,10 @@ app:
         window-minutes: 1
         min-interval-seconds: 10
 
+    deadlock-retry:
+      max-attempts: 3
+      initial-delay-ms: 100
+      multiplier: 2.0
+
   scheduling:
     pool-size: 5

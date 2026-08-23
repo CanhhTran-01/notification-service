@@ -9,13 +9,18 @@ import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.exception.RateLimitingException;
 import com.project.notificationservice.repository.RateLimitingRepository;
 import com.project.notificationservice.service.RateLimitingService;
-import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +31,14 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     private final RateLimitProperties rateLimitProperties;
 
     @Override
-    @Transactional
+    @Retryable(
+            retryFor = {CannotAcquireLockException.class},
+            maxAttemptsExpression = "#{@rateLimitProperties.deadlockRetry.maxAttempts}",
+            backoff =
+                    @Backoff(
+                            delayExpression = "#{@rateLimitProperties.deadlockRetry.initialDelayMs}",
+                            multiplierExpression = "#{@rateLimitProperties.deadlockRetry.multiplier}"))
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void rateLimiting(String recipientId, Channel channel, EventType eventType, ServiceSource source) {
 
         // layer 1: recipient + channel + eventType
@@ -41,7 +53,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
     private void limitByPattern(String recipientId, Channel channel, EventType eventType, ServiceSource source) {
 
-        // lấy ra values từ yml file và check
+        // lấy ra values từ YAML file và check
         var limitsMap = rateLimitProperties.getLimits();
         if (limitsMap == null
                 || limitsMap.isEmpty()
@@ -52,13 +64,13 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         RateLimitProperties.ChannelLimit config =
-                limitsMap.get(channel.name().toLowerCase()); // lấy config tương ứng channel
+                limitsMap.get(channel.name().toLowerCase()); // lấy rate-limit config theo channel tương ứng
         LocalDateTime now = LocalDateTime.now(); // lấy time now
 
-        // tìm record ở DB và pessimistic Lock lại (xử lý case spam cùng lúc)
+        // tìm record ở DB và "pessimistic lock" lại (xử lý case spam cùng lúc)
         RateLimiting record = rateLimitingRepository
                 .findByRecipientIdAndChannelAndEventTypeAndSource(
-                        recipientId, channel, eventType, source) // luôn lock -> tốn 1 round-trip
+                        recipientId, channel, eventType, source) // luôn lock, tốn 1 round-trip
                 .orElse(null); // không tìm thấy record
 
         if (record == null) {
@@ -74,8 +86,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                         .lastSendAt(now)
                         .build();
 
-                rateLimitingRepository.saveAndFlush(
-                        newRecord); // saveAndFlush(): đồng bộ hóa Persistence Context -> catch exception
+                // saveAndFlush(): đồng bộ hóa Persistence Context -> catch exception
+                rateLimitingRepository.saveAndFlush(newRecord);
 
             } catch (DataIntegrityViolationException exception) {
 
@@ -128,5 +140,25 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
             record.recordSend();
         }
+    }
+
+    // retry tối đa mà vẫn deadlock, nhả exception cho consumer xử lý
+    @Recover
+    public void recoverFromDeadlock(
+            CannotAcquireLockException exception,
+            String recipientId,
+            Channel channel,
+            EventType eventType,
+            ServiceSource source) {
+
+        log.error(
+                "Rate-limiting failed after max retry attempts due to deadlock: recipientId={}, channel={}, eventType={}, source={}, error={}",
+                recipientId,
+                channel,
+                eventType,
+                source,
+                exception.getMessage());
+
+        throw new RateLimitingException(ErrorCode.SYSTEM_BUSY);
     }
 }
