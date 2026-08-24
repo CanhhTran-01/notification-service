@@ -142,7 +142,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
     }
 
-    // retry tối đa mà vẫn deadlock, nhả exception cho consumer xử lý
+    // Recover riêng cho deadlock - retry tối đa mà vẫn deadlock, nhả exception cho consumer xử lý
     @Recover
     public void recoverFromDeadlock(
             CannotAcquireLockException exception,
@@ -160,5 +160,18 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 exception.getMessage());
 
         throw new RateLimitingException(ErrorCode.SYSTEM_BUSY);
+    }
+
+    // Recover dành cho exception không phải deadlock - tránh ExhaustedRetryException
+    @Recover
+    public void recoverGeneric(
+            Throwable throwable, String recipientId, Channel channel, EventType eventType, ServiceSource source) {
+
+        // exception được ném lại chính xác như bản chất của nó, không bị ExhaustedRetryException che mất
+        if (throwable instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+
+        throw new RuntimeException(throwable);
     }
 }
