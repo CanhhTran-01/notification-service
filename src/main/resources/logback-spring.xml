@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Định nghĩa đường dẫn và tên file log -->
+    <property name="ERROR_LOG_DIR" value="D:/A_My Work Space/spring-app-logs/notification-service/error"/>
+    <property name="INFO_LOG_DIR" value="D:/A_My Work Space/spring-app-logs/notification-service/info"/>
+    <property name="LOG_FILE_NAME" value="app"/>
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- Appender: Ghi ra Console -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender: Ghi ra File cho log WARN, ERROR -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- file ở đâu + ghi ntn ? -->
+        <file>${ERROR_LOG_DIR}/${LOG_FILE_NAME}-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%n</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern> <!-- nén thành .zip/.gz và lưu theo ngày -->
+                ${ERROR_LOG_DIR}/archived/${LOG_FILE_NAME}-error-%d{yyyy-MM-dd}-%i.log.gz
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize> <!-- tối đa 10MB một file -->
+            <maxHistory>30</maxHistory> <!-- giữ lại log tối đa 30 ngày tuổi -->
+            <totalSizeCap>1GB</totalSizeCap> <!-- tối đa 1GB tổng dung lượng toàn bộ file log -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- Appender: Ghi ra File cho log INFO -->
+    <appender name="InfoRollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${INFO_LOG_DIR}/${LOG_FILE_NAME}-info.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%n</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${LOG_FILE_NAME}-info-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Root Logger: mức INFO chung và phân phối log đến Console, File lỗi/cảnh báo, và File Info riêng -->
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="InfoRollingFile"/>
+    </root>
+
+    <!-- Tắt log thông số pooling rườm rà của Hibernate -->
+    <logger name="org.hibernate.orm.connections.pooling" level="WARN" />
+</configuration>

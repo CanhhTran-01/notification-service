@@ -17,14 +17,18 @@ spring:
           preferred_uuid_jdbc_type: VARCHAR # UUID được map thành VARCHAR/CHAR dưới Database MySQL
     show-sql: false
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: NotificationServiceHikariCP
+      maximum-pool-size: 10                 # Số connections tối đa
+      minimum-idle: 10                      # Số connections nhàn rỗi tối thiểu luôn duy trì
+      connection-timeout: 30000             # Thời gian chờ tối đa để connection (30 giây)
+      max-lifetime: 1800000                 # Vòng đời tối đa của một connection (30 phút)
+
   flyway:
     # Tắt tính năng thay thế biến của Flyway để tránh xung đột với chuỗi template (như ${name}) trong SQL script
     placeholder-replacement: false
-
-logging:
-  level:
-    org.hibernate.orm.connections.pooling: WARN
-    com.project.notificationservice: DEBUG
 
 app:
   sse:
