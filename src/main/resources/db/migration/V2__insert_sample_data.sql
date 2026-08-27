@@ -84,13 +84,19 @@ VALUES
 INSERT INTO dead_letter_events (id, queue_name, payload, error_reason, retry_count, resolved, created_at)
 VALUES
     ('66666666-6666-6666-6666-666666666001',
-     'notification.email.queue',
-     '{"eventId": "evt-fail-001", "channel": "EMAIL"}',
-     'SMTP connection timeout',
+     'notification.external.queue',
+     '{"eventId": "evt-fail-001", "channel": "EMAIL", "recipient": "test@example.com"}',
+     'Third-party provider timeout (SMTP/SMS Gateway)',
      3, false, NOW() - INTERVAL 1 HOUR),
 
     ('66666666-6666-6666-6666-666666666002',
      'notification.inapp.queue',
      '{"eventId": "evt-fail-002", "channel": "IN_APP", "userId": "user-003"}',
-     'User preference disabled for IN_APP',
-     2, false, NOW() - INTERVAL 30 MINUTE);
+     'WebSocket connection lost or User preference disabled for IN_APP',
+     2, false, NOW() - INTERVAL 30 MINUTE),
+
+    ('66666666-6666-6666-6666-666666666003',
+     'notification.dlq.queue',
+     '{"eventId": "evt-fail-003", "channel": "EXTERNAL", "data": "Malformed payload"}',
+     'Max retry attempts reached, moved to central DLQ',
+     5, false, NOW() - INTERVAL 10 MINUTE);
