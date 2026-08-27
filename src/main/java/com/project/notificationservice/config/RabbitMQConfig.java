@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String NOTIFICATION_QUEUE = "notification.queue";
-    public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
-    public static final String NOTIFICATION_ROUTING_KEY = "notification.routing.key";
+    public static final String EXTERNAL_NOTIFICATION_QUEUE = "notification.external.queue";
+    public static final String EXTERNAL_NOTIFICATION_EXCHANGE = "notification.external.exchange";
+    public static final String EXTERNAL_NOTIFICATION_ROUTING_KEY = "notification.external.routing.key";
 
     public static final String INAPP_QUEUE = "notification.inapp.queue";
     public static final String INAPP_EXCHANGE = "notification.inapp.exchange";
@@ -39,7 +39,7 @@ public class RabbitMQConfig {
     */
     @Bean
     public Queue notificationQueue() {
-        return QueueBuilder.durable(NOTIFICATION_QUEUE)
+        return QueueBuilder.durable(EXTERNAL_NOTIFICATION_QUEUE)
                 .withArgument("x-dead-letter-exchange", DLQ_EXCHANGE)
                 .withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY)
                 .build();
@@ -47,7 +47,7 @@ public class RabbitMQConfig {
 
     @Bean
     public DirectExchange notificationExchange() {
-        return new DirectExchange(NOTIFICATION_EXCHANGE);
+        return new DirectExchange(EXTERNAL_NOTIFICATION_EXCHANGE);
     }
 
     @Bean
@@ -55,7 +55,7 @@ public class RabbitMQConfig {
             @Qualifier("notificationQueue") Queue notificationQueue,
             @Qualifier("notificationExchange") DirectExchange notificationExchange) {
 
-        return BindingBuilder.bind(notificationQueue).to(notificationExchange).with(NOTIFICATION_ROUTING_KEY);
+        return BindingBuilder.bind(notificationQueue).to(notificationExchange).with(EXTERNAL_NOTIFICATION_ROUTING_KEY);
     }
 
     /*

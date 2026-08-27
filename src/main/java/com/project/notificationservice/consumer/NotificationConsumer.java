@@ -24,7 +24,7 @@ public class NotificationConsumer {
     private final NotificationPreferenceService preferenceService;
     private final RetryProperties retryProperties;
 
-    @RabbitListener(queues = RabbitMQConfig.NOTIFICATION_QUEUE)
+    @RabbitListener(queues = RabbitMQConfig.EXTERNAL_NOTIFICATION_QUEUE)
     public void consume(NotificationEvent event) {
 
         for (var channel : event.getChannels()) {

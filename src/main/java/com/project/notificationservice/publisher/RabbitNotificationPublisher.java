@@ -43,7 +43,7 @@ public class RabbitNotificationPublisher {
 
     public void publish(NotificationEvent event) {
         // EMAIL-SMS-PUSH
-        send(event, RabbitMQConfig.NOTIFICATION_EXCHANGE, RabbitMQConfig.NOTIFICATION_ROUTING_KEY);
+        send(event, RabbitMQConfig.EXTERNAL_NOTIFICATION_EXCHANGE, RabbitMQConfig.EXTERNAL_NOTIFICATION_ROUTING_KEY);
     }
 
     public void publishInApp(NotificationEvent event) {
