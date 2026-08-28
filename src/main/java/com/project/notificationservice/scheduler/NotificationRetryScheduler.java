@@ -1,12 +1,12 @@
 package com.project.notificationservice.scheduler;
 
-import com.project.notificationservice.config.properties.RetryProperties;
 import com.project.notificationservice.entity.Notification;
-import com.project.notificationservice.entity.NotificationLog;
 import com.project.notificationservice.enums.NotificationStatus;
-import com.project.notificationservice.repository.NotificationLogRepository;
+import com.project.notificationservice.helper.NotificationLogHelper;
+import com.project.notificationservice.properties.RetryProperties;
 import com.project.notificationservice.repository.NotificationRepository;
 import com.project.notificationservice.service.NotificationProcessorService;
+import com.project.notificationservice.service.NotificationStatusService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class NotificationRetryScheduler {
 
     private final NotificationProcessorService notificationProcessorService;
     private final NotificationRepository notificationRepository;
-    private final NotificationLogRepository notificationLogRepository;
+    private final NotificationStatusService notificationStatusService;
+    private final NotificationLogHelper logHelper;
     private final RetryProperties retryProperties;
 
     @Scheduled(fixedDelayString = "${app.retry.scheduler-fixed-delay-ms}")
@@ -31,11 +32,13 @@ public class NotificationRetryScheduler {
                 notificationRepository.findByStatusAndRetryCountLessThanAndNextRetryTimeBefore(
                         NotificationStatus.PENDING, retryProperties.getMaxRetries(), LocalDateTime.now());
 
+        // Không có cái nào cần retry
         if (notifications.isEmpty()) {
             log.info("No pending notifications to retry");
             return;
         }
 
+        // Tìm thấy
         log.info("Retry scheduler executed: found {} pending notifications", notifications.size());
 
         for (var notification : notifications) {
@@ -47,31 +50,15 @@ public class NotificationRetryScheduler {
                     notification.getRetryCount());
 
             NotificationStatus oldStatus = notification.getStatus(); // PENDING
-            notification.markAsRetrying(); // PENDING -> RETRYING
-            notificationRepository.save(notification);
-            NotificationStatus newStatus = notification.getStatus(); // RETRYING
+            notificationStatusService.markAsRetrying(notification); // PENDING ---> RETRYING
 
-            logging(
+            logHelper.log(
                     notification,
                     oldStatus,
-                    newStatus,
+                    notification.getStatus(),
                     "retrying (attempt " + notification.getRetryCount() + " of " + notification.getMaxRetries()
                             + ")...");
-
-            notificationProcessorService.send(notification);
-            notificationProcessorService.send(notification);
+            notificationProcessorService.process(notification);
         }
-    }
-
-    // handle logging notification
-    private void logging(
-            Notification notification, NotificationStatus oldStatus, NotificationStatus newStatus, String message) {
-
-        notificationLogRepository.save(NotificationLog.builder()
-                .notification(notification)
-                .oldStatus(oldStatus)
-                .newStatus(newStatus)
-                .message(message)
-                .build());
     }
 }

@@ -1,10 +1,10 @@
 package com.project.notificationservice.consumer;
 
 import com.project.notificationservice.config.RabbitMQConfig;
-import com.project.notificationservice.config.properties.RetryProperties;
 import com.project.notificationservice.dto.NotificationEvent;
 import com.project.notificationservice.entity.Notification;
 import com.project.notificationservice.exception.RateLimitingException;
+import com.project.notificationservice.properties.RetryProperties;
 import com.project.notificationservice.service.NotificationPreferenceService;
 import com.project.notificationservice.service.NotificationProcessorService;
 import com.project.notificationservice.service.RateLimitingService;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class NotificationConsumer {
+public class ExternalNotificationConsumer {
 
     private final NotificationProcessorService notificationProcessorService;
     private final RateLimitingService rateLimitingService;
@@ -29,8 +29,7 @@ public class NotificationConsumer {
 
         for (var channel : event.getChannels()) {
             try {
-                // Double-check preference trước khi xử lý
-                // Không tin tưởng external service
+                // Double-check preference trước khi xử lý, không tin tưởng external service
                 boolean isEnabled =
                         preferenceService.isChannelEnabled(event.getRecipient().getUserId(), channel);
 
@@ -59,7 +58,7 @@ public class NotificationConsumer {
                         .build();
 
                 // send
-                notificationProcessorService.send(notification);
+                notificationProcessorService.sendExternal(notification);
 
             } catch (RateLimitingException exception) {
 

@@ -1,4 +1,4 @@
-package com.project.notificationservice.config.properties;
+package com.project.notificationservice.properties;
 
 import lombok.Getter;
 import lombok.Setter;

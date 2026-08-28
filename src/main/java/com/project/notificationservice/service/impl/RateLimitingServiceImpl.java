@@ -1,12 +1,12 @@
 package com.project.notificationservice.service.impl;
 
-import com.project.notificationservice.config.properties.RateLimitProperties;
 import com.project.notificationservice.entity.RateLimiting;
 import com.project.notificationservice.enums.Channel;
 import com.project.notificationservice.enums.EventType;
 import com.project.notificationservice.enums.ServiceSource;
 import com.project.notificationservice.exception.ErrorCode;
 import com.project.notificationservice.exception.RateLimitingException;
+import com.project.notificationservice.properties.RateLimitProperties;
 import com.project.notificationservice.repository.RateLimitingRepository;
 import com.project.notificationservice.service.RateLimitingService;
 import java.time.Duration;
