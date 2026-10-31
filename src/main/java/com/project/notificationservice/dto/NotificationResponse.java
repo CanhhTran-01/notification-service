@@ -1,6 +1,8 @@
 package com.project.notificationservice.dto;
 
+import com.project.notificationservice.enums.Channel;
 import com.project.notificationservice.enums.EventType;
+import com.project.notificationservice.enums.NotificationStatus;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -16,4 +18,14 @@ public class NotificationResponse {
     private Map<String, Object> payload;
     private LocalDateTime sentAt;
     private LocalDateTime createdAt;
+
+    // admin fields
+    private String recipientId;
+    private String recipientContact;
+    private Channel channel;
+    private NotificationStatus status;
+    private String errorMessage;
+    private Integer retryCount;
+    private LocalDateTime scheduledAt;
+    private LocalDateTime nextRetryTime;
 }

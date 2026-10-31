@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 
+    Page<Notification> findByStatusOrderByCreatedAtDesc(NotificationStatus status, Pageable pageable);
+
     boolean existsByEventIdAndChannel(String eventId, Channel channel);
 
     List<Notification> findByStatusAndRetryCountLessThanAndNextRetryTimeBefore(

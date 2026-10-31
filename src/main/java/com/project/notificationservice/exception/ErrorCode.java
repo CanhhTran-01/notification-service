@@ -11,7 +11,8 @@ public enum ErrorCode {
     // 1xxx - General Errors
     UNEXPECTED_ERROR(1000, "Lỗi hệ thống", HttpStatus.INTERNAL_SERVER_ERROR),
     VALIDATION_ERROR(1001, "Dữ liệu đầu vào không hợp lệ", HttpStatus.BAD_REQUEST),
-    SYSTEM_BUSY(1002, "Hệ thống đang bận, vui lòng thử lại sau", HttpStatus.SERVICE_UNAVAILABLE),
+    INVALID_NOTIFICATION_EVENT(1002, "Dữ liệu event từ Dead Letter không hợp lệ để replay", HttpStatus.BAD_REQUEST),
+    SYSTEM_BUSY(1003, "Hệ thống đang bận, vui lòng thử lại sau", HttpStatus.SERVICE_UNAVAILABLE),
 
     // 2xxx - Notification Errors
     UNSUPPORTED_CHANNEL(2001, "Kênh không hỗ trợ", HttpStatus.BAD_REQUEST),
@@ -22,6 +23,11 @@ public enum ErrorCode {
     REQUEST_TOO_FREQUENT(2006, "Thao tác quá nhanh, vui lòng không spam!", HttpStatus.TOO_MANY_REQUESTS),
     MESSAGE_LIMIT_EXCEEDED(2007, "Vượt quá giới hạn gửi tin!", HttpStatus.TOO_MANY_REQUESTS),
     INVALID_DEAD_LETTER_PAYLOAD(2008, "Dead letter không thể deserialize!", HttpStatus.BAD_REQUEST),
+    NOTIFICATION_DRAFT_ALREADY_EXISTS(
+            2009, "Notification draft already exists for this event and channel", HttpStatus.CONFLICT),
+    NOTIFICATION_STATUS_NOT_SCHEDULABLE(2012, "Notification status does not allow scheduling", HttpStatus.CONFLICT),
+    NOTIFICATION_SCHEDULED_TIME_INVALID(
+            2010, "Notification scheduled time must be in the future", HttpStatus.BAD_REQUEST),
 
     // 3xxx - External Service Errors
     EMAIL_SERVICE_ERROR(3000, "Lỗi khi gửi email", HttpStatus.SERVICE_UNAVAILABLE),

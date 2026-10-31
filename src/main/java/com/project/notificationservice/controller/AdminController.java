@@ -1,8 +1,14 @@
 package com.project.notificationservice.controller;
 
 import com.project.notificationservice.dto.ApiResponse;
+import com.project.notificationservice.dto.CreateNotificationRequest;
+import com.project.notificationservice.dto.ScheduleNotificationRequest;
+import com.project.notificationservice.dto.UpdateFailedNotificationRequest;
 import com.project.notificationservice.service.AdminNotificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +35,48 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // admin lấy các notifications FAILED cho UI "lịch sử gửi thất bại"     GET  /api/v1/admin/notifications/failed
-    // admin lấy các notifications trong DLQ cho UI "sự kiện chưa xử lý"    GET  /api/v1/admin/dead-letter-events
-    // admin tạo thông báo ở trang thái DRAF                                POST /api/v1/admin/notifications
-    // admin lên lịch/cập nhật lịch thông báo                               POST /api/v1/admin/notifications/{id}/schedule
-    // admin update thông báo failed để gọi api retry                       PUT  /api/v1/admin/notifications/{id}
+    // admin lấy các notifications FAILED
+    @GetMapping("/notifications/failed")
+    public ResponseEntity<ApiResponse<?>> getFailedNotifications(
+            @RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return ResponseEntity.ok(ApiResponse.success(adminNotificationService.getFailedNotifications(pageable)));
+    }
+
+    // admin lấy các dead-letter events theo tiêu chí
+    @GetMapping("/dead-letter-events")
+    public ResponseEntity<ApiResponse<?>> searchDeadLetterEvents(
+            @RequestParam(required = false) Boolean resolved,
+            @RequestParam(required = false) String queueName,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return ResponseEntity.ok(
+                ApiResponse.success(adminNotificationService.searchDeadLetterEvents(resolved, queueName, pageable)));
+    }
+
+    // admin tạo thông báo DRAFT
+    @PostMapping("/notifications")
+    public ResponseEntity<ApiResponse<?>> createDraft(@Valid @RequestBody CreateNotificationRequest request) {
+
+        return ResponseEntity.ok(ApiResponse.success(adminNotificationService.createDraft(request)));
+    }
+
+    // admin lên lịch / cập nhật lịch
+    @PostMapping("/notifications/{id}/schedule")
+    public ResponseEntity<ApiResponse<?>> schedule(
+            @PathVariable String id, @Valid @RequestBody ScheduleNotificationRequest request) {
+
+        return ResponseEntity.ok(ApiResponse.success(adminNotificationService.schedule(id, request)));
+    }
+
+    // admin update thông báo FAILED trước khi retry
+    @PutMapping("/notifications/{id}")
+    public ResponseEntity<ApiResponse<?>> updateFailed(
+            @PathVariable String id, @RequestBody UpdateFailedNotificationRequest request) {
+
+        return ResponseEntity.ok(ApiResponse.success(adminNotificationService.updateFailed(id, request)));
+    }
 }

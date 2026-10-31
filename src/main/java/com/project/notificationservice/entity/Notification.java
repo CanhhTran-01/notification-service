@@ -144,4 +144,30 @@ public class Notification {
         this.errorMessage = null;
         this.nextRetryTime = LocalDateTime.now(); // retry ngay
     }
+
+    public void markAsDraft() {
+        this.status = NotificationStatus.DRAFT;
+    }
+
+    public void scheduleAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+        this.status = NotificationStatus.PENDING;
+        this.nextRetryTime = scheduledAt;
+    }
+
+    public void updateFailedContent(String recipientContact, Map<String, Object> payload, String errorMessage) {
+        if (this.status != NotificationStatus.FAILED) {
+            throw new IllegalStateException("Only FAILED notification can be updated");
+        }
+        //        if (recipientContact != null) {
+        //            // recipientContact đang updatable=false trên column, cân nhắc có thể sửa lại field này không
+        //            // hoặc bỏ @Column(updatable=false) nếu admin thật sự cần sửa contact
+        //        }
+        if (payload != null) {
+            this.payload = payload;
+        }
+        if (errorMessage != null) {
+            this.errorMessage = errorMessage;
+        }
+    }
 }
