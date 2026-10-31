@@ -10,6 +10,9 @@ src/test/resources/application-test.yaml
 src/main/resources/application-prod.yaml
 .env
 
+# Log directory
+LOG_DIR_IS_UNDEFINED/
+
 ### STS ###
 .apt_generated
 .classpath
