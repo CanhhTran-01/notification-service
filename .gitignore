@@ -6,6 +6,7 @@ target/
 
 ### Spring config ###
 src/main/resources/application-dev.yaml
+src/test/resources/application-test.yaml
 src/main/resources/application-prod.yaml
 .env
 

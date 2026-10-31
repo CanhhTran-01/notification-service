@@ -36,6 +36,7 @@ public class RabbitNotificationPublisher {
             publish(event.toBuilder().channels(externalChannels).build());
         }
 
+        // IN_APP
         if (event.getChannels().contains(Channel.IN_APP)) {
             publishInApp(event.toBuilder().channels(Set.of(Channel.IN_APP)).build());
         }
